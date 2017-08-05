@@ -1,0 +1,6 @@
+framework module Pods_RefinedPresenters {
+  umbrella header "Pods-RefinedPresenters-umbrella.h"
+
+  export *
+  module * { export * }
+}

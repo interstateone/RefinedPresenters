@@ -1,0 +1,49 @@
+{% for type in types.protocols|annotated:"Concrete" %}
+// MARK: - Concrete wrapper for {{type.name}}
+
+final class Concrete{{type.name}}: {{type.name}} {
+    private let concrete: {{type.name}}
+
+    init(_ concrete: {{type.name}}) {
+        self.concrete = concrete
+    }
+
+    {% for m in type.allMethods %}
+    func {{m.name}} -> {{m.returnTypeName}} {
+        return concrete.{{m.callName}}({% for p in m.parameters %}{{p.name}}: {{p.name}}{% if not forloop.last %},{% endif %}{% endfor %})
+    }
+    {% endfor %}
+
+    {% for p in type.allVariables %}
+    var {{p.name}}: {{p.typeName}} {
+        get { return concrete.{{p.name}} }
+        {% if p.isMutable %}set { concrete.{{p.name}} = newValue }{% endif %}
+    }
+    {% endfor %}
+}
+{% endfor %}
+
+{% for type in types.protocols|annotated:"UnownedConcrete" %}
+// MARK: - Concrete wrapper for {{type.name}}, but holds an unowned reference
+
+final class UnownedConcrete{{type.name}}: {{type.name}} {
+    private unowned var concrete: {{type.name}}
+
+    init(_ concrete: {{type.name}}) {
+        self.concrete = concrete
+    }
+
+    {% for m in type.allMethods %}
+    func {{m.name}} -> {{m.returnTypeName}} {
+        return concrete.{{m.callName}}({% for p in m.parameters %}{{p.name}}: {{p.name}}{% if not forloop.last %},{% endif %}{% endfor %})
+    }
+    {% endfor %}
+
+    {% for p in type.allVariables %}
+    var {{p.name}}: {{p.typeName}} {
+        get { return concrete.{{p.name}} }
+        {% if p.isMutable %}set { concrete.{{p.name}} = newValue }{% endif %}
+    }
+    {% endfor %}
+}
+{% endfor %}
