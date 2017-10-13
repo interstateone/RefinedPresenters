@@ -29,18 +29,12 @@ final class ExamplePresenter: FetchingPresenter, ExampleViewDelegate {
 
     // MARK: Presenter
 
-    func initializeView() {
-        loadData()
-    }
-
     func teardownView() {
         currentTask?.cancel()
         view.model = nil
     }
 
     // MARK: FetchingPresenter
-
-    typealias Data = ExampleData
 
     var currentTask: CancellablePromise<ExampleData>?
 
