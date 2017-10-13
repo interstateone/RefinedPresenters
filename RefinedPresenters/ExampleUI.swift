@@ -17,7 +17,7 @@ final class ExamplePresenter: FetchingPresenter, ExampleViewDelegate {
     // The need for concrete types here isn't because FetchingPresenter is a PAT, but because protocols don't conform to themselves, and so the ExampleView protocol doesn't satisfy FetchingPresenter.View's constraint that it's a WaitingView
     // It's not ideal that the presenter/view retain cycle is broken with an unowned reference. Unowned is technically correct because a presenter is kept alive by its view, although this is a little risky because there's nothing stopping something else from retaining it other than convention. This is a bigger downside than the necessity of the concrete wrapper itself. Preventing anything else from retaining a presenter by hiding its initialization during VC construction could prevent accidents
     typealias View = UnownedConcreteExampleView
-    var view: View?
+    var view: View
 
     typealias Wireframe = ConcreteExampleNavigator
     let wireframe: Wireframe
@@ -35,7 +35,7 @@ final class ExamplePresenter: FetchingPresenter, ExampleViewDelegate {
 
     func teardownView() {
         currentTask?.cancel()
-        view?.model = nil
+        view.model = nil
     }
 
     // MARK: FetchingPresenter
@@ -50,7 +50,7 @@ final class ExamplePresenter: FetchingPresenter, ExampleViewDelegate {
     }
 
     func dataDidLoad(data: Data) {
-        view?.model = ExampleViewModel(value: data.value)
+        view.model = ExampleViewModel(value: value.name)
     }
 }
 

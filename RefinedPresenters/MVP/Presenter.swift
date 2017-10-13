@@ -52,7 +52,7 @@ public extension DataFetching {
 /// For this case, implementing FetchingPresenter means that the only work to be done is specifying what data to load (usually delegated to a Service) and how to transform the data for display in the View.
 public protocol FetchingPresenter: Presenter, DataFetching {
     associatedtype View: WaitingView
-    var view: View? { get }
+    var view: View { get }
     associatedtype Wireframe: AlertPresenting
     var wireframe: Wireframe { get }
 }
@@ -65,11 +65,11 @@ extension FetchingPresenter {
     }
 
     public func preLoad() {
-        view?.wait()
+        view.wait()
     }
 
     public func postLoad() {
-        view?.stopWaiting()
+        view.stopWaiting()
     }
 
     public func dataFailedToLoad(error: Error) {
