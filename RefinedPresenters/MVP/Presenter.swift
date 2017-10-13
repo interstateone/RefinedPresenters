@@ -7,39 +7,39 @@ public protocol Presenter: class {
     func teardownView()
 }
 
-public protocol DataFetching: class {
-    associatedtype Data
-    var currentTask: CancellablePromise<Data>? { get set }
+public protocol ValueFetching: class {
+    associatedtype Value
+    var currentTask: CancellablePromise<Value>? { get set }
 
-    func createTask() -> CancellablePromise<Data>
-    func loadData()
-    func preLoad()
-    func postLoad()
-    func dataDidLoad(data: Data)
-    func dataFailedToLoad(error: Error)
+    func createTask() -> CancellablePromise<Value>
+    func fetchValue()
+    func preFetch()
+    func postFetch()
+    func fetchedValue(_ value: Value)
+    func failedToFetchValue(error: Error)
 }
 
-public extension DataFetching {
-    func preLoad() {}
-    func postLoad() {}
+public extension ValueFetching {
+    func preFetch() {}
+    func postFetch() {}
 
     /// Template method that lays out the process of loading data
-    public func loadData() {
+    public func fetchValue() {
         if let task = currentTask {
             task.cancel()
         }
 
-        preLoad()
+        preFetch()
 
         let newTask = createTask()
         currentTask = newTask
 
         newTask
-        .then(execute: dataDidLoad)
-        .catch(execute: dataFailedToLoad)
+        .then(execute: fetchedValue)
+        .catch(execute: failedToFetchValue)
         .always {
             self.currentTask = nil
-            self.postLoad()
+            self.postFetch()
         }
     }
 }
@@ -50,7 +50,7 @@ public extension DataFetching {
 ///  - it loads that data, potentially asynchronously
 ///
 /// For this case, implementing FetchingPresenter means that the only work to be done is specifying what data to load (usually delegated to a Service) and how to transform the data for display in the View.
-public protocol FetchingPresenter: Presenter, DataFetching {
+public protocol FetchingPresenter: Presenter, ValueFetching {
     associatedtype View: WaitingView
     var view: View { get }
     associatedtype Wireframe: AlertPresenting
@@ -61,18 +61,18 @@ extension FetchingPresenter {
     // MARK: Default implementations that take advantage of the constraints on View and Wireframe
 
     public func initializeView() {
-        loadData()
+        fetchValue()
     }
 
-    public func preLoad() {
+    public func preFetch() {
         view.wait()
     }
 
-    public func postLoad() {
+    public func postFetch() {
         view.stopWaiting()
     }
 
-    public func dataFailedToLoad(error: Error) {
+    public func failedToFetchValue(error: Error) {
         wireframe.presentAlert(title: "Error", message: error.localizedDescription)
     }
 }

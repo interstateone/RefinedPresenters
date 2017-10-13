@@ -46,10 +46,10 @@ final class ExamplePresenter: FetchingPresenter, ExampleViewDelegate {
 
     func createTask() -> CancellablePromise<ExampleData> {
         // Would normally use a service
-        return CancellablePromise(value: ExampleData(value: "blorp"))
+        return CancellablePromise(value: ExampleData(name: "blorp"))
     }
 
-    func dataDidLoad(data: Data) {
+    func fetchedValue(_ value: Value) {
         view.model = ExampleViewModel(value: value.name)
     }
 }
@@ -77,7 +77,7 @@ final class ExampleViewController: UIViewController, ExampleView {
 }
 
 struct ExampleData {
-    let value: String
+    let name: String
 }
 
 struct ExampleViewModel {
